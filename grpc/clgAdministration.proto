@@ -1,0 +1,46 @@
+syntax = "proto3";
+option go_package = "GoPractise/grpc";
+package GoPractise;
+
+service Administration{
+    rpc CreateCourse (CourseInfo) returns (Res){}
+}
+
+message CourseInfo {
+    string Id = 1;
+    string CourseName = 2; 
+}
+
+message Res {
+    string response = 1;
+}
+
+message StudentMarks{
+    string Id =1;
+    string StudentId = 2;
+    string CourseId = 3;
+    string CourseName = 4;
+    int64 Marks = 5;
+    string Grade = 6;
+}
+
+message StudentInfo{
+    string Id = 1;
+    string Name = 2;
+    string RollNumber = 3;
+    int64 Age = 4;
+    string CourseId = 5;
+    string MarksId = 6;
+    CourseInfo ClassesEnrolled = 7;
+    StudentMarks StudentMarks = 8;
+}
+
+message InstructorDetails {
+    string Id = 1;
+    string InstructorCode = 2;
+    string InstructorName = 3;
+    string Department = 4;
+    string CourseId = 5;
+    string CourseName = 6;
+    CourseInfo ClassesEnrolled = 7;
+} 
