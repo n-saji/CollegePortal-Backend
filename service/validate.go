@@ -246,6 +246,7 @@ func (s *Service) GenerateOTPAndStore(email string) error {
 		err = s.daos.DeleteOTPByAccountId(acc)
 		if err != nil {
 			log.Println("error deleting old otp")
+			return err
 		}
 	}
 

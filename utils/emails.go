@@ -19,9 +19,9 @@ func SendMessage(m *mg.Message) error {
 	if apiKey == "" {
 		return fmt.Errorf("api key not set")
 	}
-	domain := os.Getenv("DOMAIN")
+	domain := os.Getenv("MAIL_GUN_DOMAIN")
 	if domain == "" {
-		return fmt.Errorf("domain not set")
+		return fmt.Errorf("domain name not set")
 	}
 	if domain == "" || apiKey == "" {
 		return fmt.Errorf("domain or api key not set")
@@ -45,7 +45,6 @@ func SendMessage(m *mg.Message) error {
 }
 
 func SendAccountCreationOTP(name, emailId, otp string) error {
-	fmt.Println("OTP: ", otp)
 
 	m := mg.NewMessage(
 		"University Portal <postmaster@notificationbot.me>",
@@ -59,8 +58,10 @@ func SendAccountCreationOTP(name, emailId, otp string) error {
 
 	err := SendMessage(m)
 	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
 		return err
 	}
+	fmt.Println("Account creation OTP sent successfully")
 	return nil
 }
 
