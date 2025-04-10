@@ -80,7 +80,7 @@ func (s *Service) CreateNewAccount(acc *models.Account) error {
 
 	go s.GenerateOTPAndStore(acc.Info.Credentials.EmailId)
 
-	go utils.StoreMessages("New Account Added", acc.Name, config.AccountTypeInstructor, "")
+	go utils.StoreMessages("New Instructor Signed-up!", acc.Name, config.AccountTypeInstructor, "*")
 
 	return nil
 }

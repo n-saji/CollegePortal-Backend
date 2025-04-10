@@ -106,7 +106,7 @@ func SendMessageToConnectedClients(msg, author, title string) {
 	clientsMu.Unlock()
 }
 
-// message to send , account type to send to, account to skip
+// message to send , account type to send to, account to skip. If sender_id is "*", it will be considered as system message
 func StoreMessages(title, message, account_type, sender_id string) {
 
 	dbConn := config.DBInit()
@@ -118,7 +118,7 @@ func StoreMessages(title, message, account_type, sender_id string) {
 		fmt.Println("error while fetching instructor ids" + err.Error())
 		return
 	}
-	if sender_id != "" {
+	if sender_id != "*" {
 		skip_account_uuid, err := uuid.Parse(sender_id)
 		if err != nil {
 			fmt.Println("error while parsing skip account" + err.Error())
@@ -128,6 +128,10 @@ func StoreMessages(title, message, account_type, sender_id string) {
 		if err != nil {
 			fmt.Println("error while fetching author" + err.Error())
 			return
+		}
+	} else {
+		author = &models.Account{
+			Name: "System",
 		}
 	}
 	msg := &models.Messages{}
