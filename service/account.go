@@ -4,6 +4,7 @@ import (
 	"CollegeAdministration/config"
 	"CollegeAdministration/models"
 	"CollegeAdministration/utils"
+	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -17,10 +18,12 @@ func (s *Service) CreateNewAccount(acc *models.Account) error {
 		log.Println("failed to validate credentials")
 		return err
 	}
-	err = s.CheckEmailExist(acc.Info.Credentials.EmailId)
+	exists, err := s.CheckEmailExist(acc.Info.Credentials.EmailId)
 	if err != nil {
-		log.Println("duplicate email id")
 		return err
+	}
+	if exists {
+		return fmt.Errorf("email already exists")
 	}
 	password, err := bcrypt.GenerateFromPassword([]byte(acc.Info.Credentials.Password), 10)
 	if err != nil {

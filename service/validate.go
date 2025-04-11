@@ -42,15 +42,15 @@ func (s *Service) ValidatePassword(password string) error {
 	}
 	return nil
 }
-func (ac *Service) CheckEmailExist(email string) error {
+func (ac *Service) CheckEmailExist(email string) (bool, error) {
 	ok, err := ac.daos.CheckForEmail(email)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if ok {
-		return fmt.Errorf("email exists")
+		return true, nil
 	}
-	return nil
+	return false, nil
 }
 func (ac *Service) CheckCredentials(email, password string) error {
 
@@ -59,11 +59,11 @@ func (ac *Service) CheckCredentials(email, password string) error {
 		return err1
 	}
 	if hashed_password == "" {
-		return fmt.Errorf("wrong email id")
+		return fmt.Errorf("invalid email id")
 	}
 	err4 := bcrypt.CompareHashAndPassword([]byte(hashed_password), []byte(password))
 	if err4 != nil {
-		return fmt.Errorf("wrong password")
+		return fmt.Errorf("invalid credentials")
 	}
 
 	return nil

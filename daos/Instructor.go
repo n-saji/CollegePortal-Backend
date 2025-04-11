@@ -118,7 +118,7 @@ func (ac *Daos) UpdateInstructorInfo(req_id *models.InstructorDetails, condition
 	return nil
 }
 
-func (ac *Daos) RetieveInstructorDetailsWithCondition(req models.InstructorDetails) ([]*models.InstructorDetails, error) {
+func (ac *Daos) RetieveInstructorDetailsWithCondition(req *models.InstructorDetails) ([]*models.InstructorDetails, error) {
 	var list []*models.InstructorDetails
 	err := ac.dbConn.Debug().Model(models.InstructorDetails{}).Select("*").Where(req).Find(&list).Error
 	if err != nil {

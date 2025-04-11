@@ -61,9 +61,9 @@ func (ac *Service) InsertValuesToCAd(new_student *models.StudentInfo, account_id
 		return err1
 	}
 
-	instructor_list_old, _ := ac.GetInstructorDetailWithSpecifics(models.InstructorDetails{CourseId: new_student.CourseId})
+	instructor_list_old, _ := ac.GetInstructorDetailWithSpecifics(&models.InstructorDetails{CourseId: new_student.CourseId})
 	for _, each_instructor := range instructor_list_old {
-		err := ac.Update_Instructor_Info(each_instructor, models.InstructorDetails{Id: each_instructor.Id})
+		err := ac.Update_Instructor_Info(each_instructor, &models.InstructorDetails{Id: each_instructor.Id})
 		if err != nil {
 			return err
 		}
@@ -197,17 +197,17 @@ func (ac *Service) Update_Student_Details(update_student *models.StudentInfo, ol
 	}
 	if course_new.Id != course_old.Id {
 
-		instructor_list_old, _ := ac.GetInstructorDetailWithSpecifics(models.InstructorDetails{CourseId: course_old.Id})
+		instructor_list_old, _ := ac.GetInstructorDetailWithSpecifics(&models.InstructorDetails{CourseId: course_old.Id})
 		for _, each_instructor := range instructor_list_old {
-			err := ac.Update_Instructor_Info(each_instructor, models.InstructorDetails{Id: each_instructor.Id})
+			err := ac.Update_Instructor_Info(each_instructor, &models.InstructorDetails{Id: each_instructor.Id})
 			if err != nil {
 				return err
 			}
 		}
 
-		instructor_list_new, _ := ac.GetInstructorDetailWithSpecifics(models.InstructorDetails{CourseId: course_new.Id})
+		instructor_list_new, _ := ac.GetInstructorDetailWithSpecifics(&models.InstructorDetails{CourseId: course_new.Id})
 		for _, each_instructor := range instructor_list_new {
-			err1 := ac.Update_Instructor_Info(each_instructor, models.InstructorDetails{Id: each_instructor.Id})
+			err1 := ac.Update_Instructor_Info(each_instructor, &models.InstructorDetails{Id: each_instructor.Id})
 			if err1 != nil {
 				return err1
 			}
@@ -395,17 +395,17 @@ func (ac *Service) UpdateStudentDetailsV2(update_student *models.StudentInfo) er
 	}
 	if course_new.Id != existing_student.CourseId {
 
-		instructor_list_old, _ := ac.GetInstructorDetailWithSpecifics(models.InstructorDetails{CourseId: existing_student.CourseId})
+		instructor_list_old, _ := ac.GetInstructorDetailWithSpecifics(&models.InstructorDetails{CourseId: existing_student.CourseId})
 		for _, each_instructor := range instructor_list_old {
-			err := ac.Update_Instructor_Info(each_instructor, models.InstructorDetails{Id: each_instructor.Id})
+			err := ac.Update_Instructor_Info(each_instructor, &models.InstructorDetails{Id: each_instructor.Id})
 			if err != nil {
 				return err
 			}
 		}
 
-		instructor_list_new, _ := ac.GetInstructorDetailWithSpecifics(models.InstructorDetails{CourseId: course_new.Id})
+		instructor_list_new, _ := ac.GetInstructorDetailWithSpecifics(&models.InstructorDetails{CourseId: course_new.Id})
 		for _, each_instructor := range instructor_list_new {
-			err1 := ac.Update_Instructor_Info(each_instructor, models.InstructorDetails{Id: each_instructor.Id})
+			err1 := ac.Update_Instructor_Info(each_instructor, &models.InstructorDetails{Id: each_instructor.Id})
 			if err1 != nil {
 				return err1
 			}

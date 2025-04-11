@@ -74,7 +74,7 @@ func (ac *Service) DeleteCA(name string) error {
 	}
 	rc, _ := ac.daos.GetCourseByName(name)
 
-	instDetails, err := ac.GetInstructorDetailWithSpecifics(models.InstructorDetails{CourseId: rc.Id})
+	instDetails, err := ac.GetInstructorDetailWithSpecifics(&models.InstructorDetails{CourseId: rc.Id})
 	if err != nil {
 		fmt.Println("unable to fetch instructors ", err)
 		return errors.New("unable to fetch instructors " + err.Error())

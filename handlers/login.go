@@ -21,6 +21,15 @@ func (h *Handler) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+	exists, err := h.service.CheckEmailExist(req.EmailId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if !exists {
+		ctx.JSON(http.StatusNotAcceptable, "email does not exist")
+		return
+	}
 	err1 := h.service.CheckCredentials(req.EmailId, req.Password)
 	if err1 != nil {
 		ctx.JSON(http.StatusInternalServerError, err1.Error())

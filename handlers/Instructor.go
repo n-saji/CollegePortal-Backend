@@ -191,7 +191,7 @@ func (h *Handler) UpdateInstructor(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, "No query Params")
 		return
 	}
-	err3 := h.service.Update_Instructor(req_id, *cond)
+	err3 := h.service.Update_Instructor(req_id, cond)
 	if err3 != nil {
 		ctx.JSON(http.StatusInternalServerError, err3.Error())
 		return
@@ -216,6 +216,12 @@ func (h *Handler) DeleteInstructorWithConditions(ctx *gin.Context) {
 		return
 	}
 
+	account_id := ctx.Param("aid")
+	if account_id == "" {
+		ctx.JSON(http.StatusInternalServerError, "account_id is absent")
+		return
+	}
+
 	req_id := &models.InstructorDetails{}
 	err := ctx.BindJSON(&req_id)
 	if err != nil {
@@ -224,7 +230,7 @@ func (h *Handler) DeleteInstructorWithConditions(ctx *gin.Context) {
 		return
 	}
 
-	err3 := h.service.DeleteInstructorWithConditions(req_id)
+	err3 := h.service.DeleteInstructorWithConditions(account_id,req_id)
 	if err3 != nil {
 		ctx.JSON(http.StatusInternalServerError, err3.Error())
 		return

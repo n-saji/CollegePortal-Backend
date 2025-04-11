@@ -18,8 +18,6 @@ func (h *Handler) RoutingChannel(rc *gin.RouterGroup) {
 	//student
 	rc.POST("/insert-student-details", h.InsertStudentDetails)
 	rc.GET("/retrieve-college-administration", h.RetrieveValuesForStudent)
-	//Deprecated
-	rc.PATCH("/update-student-details/:roll_number/:student_name/:coursename", h.UpdateValuesForStudent)
 	rc.DELETE("/delete-student-info/:id", h.DeleteStudentDetails)
 	rc.PATCH("/update-student-name-and-age/:name", h.UpdateStudentNameAndAge)
 	rc.GET("/find-all-course-for-student/:name", h.FetchAllCourseForAStudent)
@@ -34,9 +32,8 @@ func (h *Handler) RoutingChannel(rc *gin.RouterGroup) {
 	rc.GET("/retrieve-instructors", h.RetrieveInstructorDetails)
 	rc.GET("/retrieve-instructors/:order_by", h.RetrieveInstructorDetailsByOrder)
 	rc.GET("/instructor-login-with-id/:instructorId/:emailId/:password", h.InstructorLoginCreation)
-	rc.DELETE("/delete-instructor/:name", h.DeleteInstructor)
 	rc.PATCH("/update-instructor", h.UpdateInstructor)
-	rc.DELETE("/delete-instructor", h.DeleteInstructorWithConditions)
+	rc.DELETE("/admins/:aid/delete-instructor", h.DeleteInstructorWithConditions)
 	rc.GET("get-instructor-name-by-id/:id", h.GetInstructorNameWithId)
 	rc.GET("/view-profile-instructor/:id", h.ViewProfile)
 
@@ -59,6 +56,10 @@ func (h *Handler) RoutingChannel(rc *gin.RouterGroup) {
 	rc.GET("/ws/:id", utils.HandleConnections)
 	rc.GET("/read-message/:id", h.UpdateMessageStatusAsRead)
 	rc.GET("/send-test-message", h.SendMessage)
+
+	//Deprecated
+	rc.PATCH("/update-student-details/:roll_number/:student_name/:coursename", h.UpdateValuesForStudent)
+	rc.DELETE("/delete-instructor/:name", h.DeleteInstructor)
 
 	//Depreciated
 	// rc.GET("/instructor-login/:emailId/:password", h.InstructorLogin)

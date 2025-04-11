@@ -174,7 +174,7 @@ func (s *Service) DeleteInstructor(name string) error {
 	return nil
 }
 
-func (s *Service) Update_Instructor_Info(req_id *models.InstructorDetails, cond models.InstructorDetails) error {
+func (s *Service) Update_Instructor_Info(req_id *models.InstructorDetails, cond *models.InstructorDetails) error {
 	list_details, err := s.GetInstructorDetailWithSpecifics(cond)
 	if err != nil {
 		return fmt.Errorf(fmt.Sprint("fetching error " + err.Error()))
@@ -205,7 +205,7 @@ func (s *Service) Update_Instructor_Info(req_id *models.InstructorDetails, cond 
 		}
 	}
 	req_id.Info.StudentsList = student_with_course
-	err1 := s.daos.UpdateInstructorInfo(req_id, &cond)
+	err1 := s.daos.UpdateInstructorInfo(req_id, cond)
 
 	if err1 != nil {
 		return err1
@@ -214,7 +214,7 @@ func (s *Service) Update_Instructor_Info(req_id *models.InstructorDetails, cond 
 	return nil
 }
 
-func (s *Service) Update_Instructor(req_id *models.InstructorDetails, cond models.InstructorDetails) error {
+func (s *Service) Update_Instructor(req_id *models.InstructorDetails, cond *models.InstructorDetails) error {
 
 	list_details, err := s.GetInstructorDetailWithSpecifics(cond)
 	if err != nil {
@@ -246,7 +246,7 @@ func (s *Service) Update_Instructor(req_id *models.InstructorDetails, cond model
 		}
 	}
 	req_id.Info.StudentsList = student_with_course
-	err1 := s.daos.UpdateInstructor(req_id, &cond)
+	err1 := s.daos.UpdateInstructor(req_id, cond)
 
 	if err1 != nil {
 		return err1
@@ -255,7 +255,7 @@ func (s *Service) Update_Instructor(req_id *models.InstructorDetails, cond model
 	return nil
 
 }
-func (s *Service) GetInstructorDetailWithSpecifics(req models.InstructorDetails) ([]*models.InstructorDetails, error) {
+func (s *Service) GetInstructorDetailWithSpecifics(req *models.InstructorDetails) ([]*models.InstructorDetails, error) {
 
 	id_list, err := s.daos.RetieveInstructorDetailsWithCondition(req)
 	if err != nil {
@@ -266,31 +266,45 @@ func (s *Service) GetInstructorDetailWithSpecifics(req models.InstructorDetails)
 
 }
 
-func (s *Service) DeleteInstructorWithConditions(id_condition *models.InstructorDetails) error {
+func (s *Service) DeleteInstructorWithConditions(aid string, id_condition *models.InstructorDetails) error {
 
-	id_list, err := s.daos.RetieveInstructorDetailsWithCondition(*id_condition)
+	if aid == "" {
+		return fmt.Errorf("account id not found")
+	}
+	if id_condition != nil {
+		if id_condition.Id != uuid.Nil && id_condition.Id.String() == aid {
+			return fmt.Errorf("account id and instructor id are same")
+		}
+	}
+
+	id_list, err := s.daos.RetieveInstructorDetailsWithCondition(id_condition)
 	if err != nil {
 		return err
 	}
-	fmt.Println(id_list)
+
 	for _, each_id := range id_list {
 		if each_id.Id == uuid.Nil {
 			return fmt.Errorf("instructor not found")
 		}
 
-		err3 := s.daos.DeleteMessageByAccountId(each_id.Id)
-		if err3 != nil {
-			return err3
+		err = s.daos.DeleteMessageByAccountId(each_id.Id)
+		if err != nil {
+			return fmt.Errorf("error deleting message %s", err.Error())
 		}
 
-		err1 := s.daos.DeleteInstructorLogin(each_id.Id)
-		if err1 != nil {
-			return err1
+		err = s.daos.DeleteInstructorLogin(each_id.Id)
+		if err != nil {
+			return fmt.Errorf("error deleting instructor login %s", err.Error())
 		}
 
-		err2 := s.daos.DeleteInstructorWithConditions(each_id)
-		if err2 != nil {
-			return err2
+		err = s.daos.DeleteTokenByAccountId(each_id.Id)
+		if err != nil {
+			return fmt.Errorf("error deleting token %s", err.Error())
+		}
+
+		err = s.daos.DeleteInstructorWithConditions(each_id)
+		if err != nil {
+			return fmt.Errorf("error deleting instructor %s", err.Error())
 		}
 	}
 
@@ -361,10 +375,14 @@ func (s *Service) UpdateInstructorCredentials(cred *models.InstructorLogin) erro
 		if err2 != nil {
 			return err2
 		}
-		err := s.CheckEmailExist(cred.EmailId)
+		exists, err := s.CheckEmailExist(cred.EmailId)
 		if err != nil {
 			return err
 		}
+		if exists {
+			return fmt.Errorf("email already exists")
+		}
+
 	}
 
 	if cred.Password != "" {

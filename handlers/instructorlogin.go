@@ -22,39 +22,43 @@ func (h *Handler) InstructorLoginCreation(ctx *gin.Context) {
 	emailId := parameter.ByName("emailId")
 	password := parameter.ByName("password")
 	err := h.service.ValidateLogin(emailId, password)
-	err3 := h.service.CheckEmailExist(emailId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
-	} else if err3 != nil {
+	}
+
+	exists, err3 := h.service.CheckEmailExist(emailId)
+	if err3 != nil {
 		ctx.JSON(http.StatusInternalServerError, err3.Error())
 		return
-	} else if err2 == nil {
-		err1 := h.service.StoreInstructoLogindetails(uuid, emailId, password)
-		if err1 != nil {
-			ctx.JSON(http.StatusNotAcceptable, err1.Error())
-			return
-		} else {
-			token, _ := h.service.GetTokenAfterLogging(uuid.String())
-			ctx.Writer.Header().Set("token", token.String())
-			ctx.Writer.Header().Set("account_id", uuid.String())
-			http.SetCookie(ctx.Writer, &http.Cookie{
-				Name:     "token",
-				Value:    token.String(),
-				Path:     "/",
-				HttpOnly: true,
-				Secure:   false,
-			})
-			http.SetCookie(ctx.Writer, &http.Cookie{
-				Name:     "account_id",
-				Value:    uuid.String(),
-				Path:     "/",
-				HttpOnly: true,
-				Secure:   false,
-			})
-			ctx.JSON(http.StatusAccepted, "successfully created")
-		}
-
+	}
+	if exists {
+		ctx.JSON(http.StatusNotAcceptable, "Email already exists")
+		return
+	}
+	err1 := h.service.StoreInstructoLogindetails(uuid, emailId, password)
+	if err1 != nil {
+		ctx.JSON(http.StatusNotAcceptable, err1.Error())
+		return
+	} else {
+		token, _ := h.service.GetTokenAfterLogging(uuid.String())
+		ctx.Writer.Header().Set("token", token.String())
+		ctx.Writer.Header().Set("account_id", uuid.String())
+		http.SetCookie(ctx.Writer, &http.Cookie{
+			Name:     "token",
+			Value:    token.String(),
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+		})
+		http.SetCookie(ctx.Writer, &http.Cookie{
+			Name:     "account_id",
+			Value:    uuid.String(),
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+		})
+		ctx.JSON(http.StatusAccepted, "successfully created")
 	}
 
 }
