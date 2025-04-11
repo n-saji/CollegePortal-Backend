@@ -27,7 +27,7 @@ func (h *Handler) login(ctx *gin.Context) {
 		return
 	}
 	if !exists {
-		ctx.JSON(http.StatusNotAcceptable, "email does not exist")
+		ctx.JSON(http.StatusUnauthorized, "email does not exist")
 		return
 	}
 	err1 := h.service.CheckCredentials(req.EmailId, req.Password)
