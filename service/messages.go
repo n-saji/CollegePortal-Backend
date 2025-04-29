@@ -23,7 +23,7 @@ func (s *Service) UpdateMessageStatusAsRead(account_id string) (string, error) {
 
 func (s *Service) SendMessageAsBroadCast(broadcastType, msg string) error {
 	if broadcastType == "event" {
-		utils.StoreMessages("Test", msg, config.AccountTypeInstructor, "")
+		utils.StoreMessages("Test", msg, config.AccountTypeInstructor, "*")
 		return nil
 	} else {
 		utils.SendMessageToConnectedClients(msg, "Admin", "Test")

@@ -28,8 +28,6 @@ func SendMessage(m *mg.Message) error {
 	}
 
 	mg := mg.NewMailgun(domain, apiKey)
-	//When you have an EU-domain, you must specify the endpoint:
-	// mg.SetAPIBase("https://api.eu.mailgun.net")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
