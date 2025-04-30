@@ -18,7 +18,3 @@ This is a web application built in **Golang** to help college professors manage 
 - **Golang**: For business logic and application development  
 - **PostgreSQL**: For database management  
 
-### Frontend
-- **HTML**, **CSS**, and **JavaScript**: For user interface development
-
-
