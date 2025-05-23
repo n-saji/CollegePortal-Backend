@@ -25,11 +25,21 @@ func main() {
 
 	handlerConnection := handlers.New(db)
 
+	defer config.CloseDB(db)
 	s := cron.New()
-	go s.AddFunc("@every 15m", jobs.RunDailyMigrations)
 	// go jobs.AccountDetailsMigration(db) //Fix the migration
 	go utils.InitiateWebSockets()
-	go s.AddFunc("@every 10s", jobs.SendMessages)
+
+	_, err := s.AddFunc("@every 10m", jobs.RunDailyMigrations)
+	if err != nil {
+		log.Println("Error scheduling RunDailyMigrations:", err)
+	}
+
+	_, err = s.AddFunc("@every 10s", jobs.SendMessages)
+	if err != nil {
+		log.Println("Error scheduling SendMessages:", err)
+	}
+
 	s.Start()
 
 	r := handlerConnection.GetRouter()
@@ -40,8 +50,6 @@ func main() {
 		return
 	}
 	s.Stop()
-	defer config.CloseDB(db)
-
 }
 
 func toRunGooseMigration(url string) {
