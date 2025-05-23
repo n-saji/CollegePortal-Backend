@@ -85,7 +85,7 @@ func (ac *Service) GetTokenAfterLogging(account_id string) (uuid.UUID, error) {
 	validtill := tn.Add(time.Hour * 24)
 	token_table.ValidTill = validtill.Unix()
 
-	err = ac.daos.InsertToken(token_table)
+	err = ac.daos.InsertToken(&token_table)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("token insertion failed")
 	}
@@ -265,5 +265,58 @@ func (s *Service) GenerateOTPAndStore(email string) error {
 		return err
 	}
 	go utils.SendAccountCreationOTP(acnt.Name, acnt.Info.Credentials.EmailId, otp)
+	return nil
+}
+
+func (ac *Service) CreateResetPasswordToken(account_id string) (uuid.UUID, error) {
+	token_table := &models.Token_generator{}
+	account_uuid, err := uuid.Parse(account_id)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("error parsing uuid")
+	}
+	token_table.AccountId = account_uuid
+
+	token := uuid.New()
+	token_table.Token = token
+	token_table.IsValid = true
+	tn := time.Now()
+	token_table.ValidFrom = tn.Unix()
+	validtill := tn.Add(time.Minute * 15)
+	token_table.ValidTill = validtill.Unix()
+
+	err = ac.daos.InsertToken(token_table)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("token insertion failed")
+	}
+	return token_table.Token, nil
+}
+
+func (s *Service) ValidatePasswordReq(req *models.ResetPasswordReq) error {
+
+	if req == nil {
+		return fmt.Errorf("request is nil")
+	}
+
+	if req.EmailId == "" {
+		return fmt.Errorf("email_id is required")
+	}
+	if req.Token == "" {
+		return fmt.Errorf("token is required")
+	}
+	if req.Password == "" {
+		return fmt.Errorf("password is required")
+	}
+	return nil
+}
+
+func (s *Service) DisableAllTokensForAccount(account_id string) error {
+	account_uuid, err := uuid.Parse(account_id)
+	if err != nil {
+		return fmt.Errorf("error parsing uuid")
+	}
+	err = s.daos.DisableAllTokensForAccount(account_uuid)
+	if err != nil {
+		return fmt.Errorf("db error while disabling all tokens for account, err - %s", err)
+	}
 	return nil
 }

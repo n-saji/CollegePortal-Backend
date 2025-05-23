@@ -38,7 +38,7 @@ func (ac *Daos) SetTokenFalse(token uuid.UUID) error {
 
 }
 
-func (ac *Daos) InsertToken(tg models.Token_generator) error {
+func (ac *Daos) InsertToken(tg *models.Token_generator) error {
 
 	err := ac.dbConn.Table("token_generators").Create(&tg).Error
 	if err != nil {
@@ -68,6 +68,14 @@ func (ac *Daos) DeleteToken(token uuid.UUID) error {
 
 func (ac *Daos) DeleteTokenByAccountId(account_id uuid.UUID) error {
 	err := ac.dbConn.Where("account_id = ?", account_id).Delete(models.Token_generator{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ac *Daos) DisableAllTokensForAccount(account_id uuid.UUID) error {
+	err := ac.dbConn.Model(models.Token_generator{}).Where("account_id = ?", account_id).Update("is_valid", false).Error
 	if err != nil {
 		return err
 	}

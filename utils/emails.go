@@ -1,16 +1,13 @@
 package utils
 
 import (
+	"CollegeAdministration/config"
 	"context"
 	"fmt"
 	"os"
 	"time"
 
 	mg "github.com/mailgun/mailgun-go/v4"
-)
-
-var (
-	FRONTEND_URL = os.Getenv("FRONTEND_URL")
 )
 
 func SendMessage(m *mg.Message) error {
@@ -45,7 +42,7 @@ func SendMessage(m *mg.Message) error {
 func SendAccountCreationOTP(name, emailId, otp string) error {
 
 	m := mg.NewMessage(
-		"University Portal <postmaster@notificationbot.me>",
+		"University Portal <notifications@nikhilsaji.me>",
 		"Account Creation OTP",
 		"",
 	)
@@ -63,33 +60,22 @@ func SendAccountCreationOTP(name, emailId, otp string) error {
 	return nil
 }
 
-// func SendPasswordReset(emailId string) error {
-// 	title := "Password Reset"
-// 	message := "Please reset your password by clicking on the link below:\n" +
-// 		"http://localhost:8080/reset-password?email=" + emailId
-// 	err := SendMessage(title, message, emailId)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func SendResetPasswordEmail(emailId string, token string, accountId, name string) error {
+	m := mg.NewMessage(
+		"University Portal <notifications@nikhilsaji.me>",
+		"Reset Your University Portal Password",
+		"",
+	)
+	m.SetTemplate("reset password mail")
+	m.AddRecipient(emailId)
+	m.AddVariable("user_name", name)
+	m.AddVariable("reset_link", fmt.Sprintf("%s/reset-password/%s/%s/%s", config.FRONTEND_URL, token, accountId, emailId))
 
-// func SendAccountCreation(emailId string) error {
-// 	title := "Account Creation"
-// 	message := "Your account has been created successfully. Please login to your account."
-// 	err := SendMessage(title, message, emailId)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func SendAccountPasswordChange(emailId string) error {
-// 	title := "Account Password Change"
-// 	message := "Your account password has been changed successfully. Please login to your account."
-// 	err := SendMessage(title, message, emailId)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+	err := SendMessage(m)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		return err
+	}
+	fmt.Println("Reset password email sent successfully")
+	return nil
+}

@@ -143,3 +143,11 @@ type OTP struct {
 	ExpiresAt int64
 	IsUsed    bool
 }
+
+type ResetPasswordReq struct {
+	AccountID string `json:"account_id"`
+	EmailId   string `json:"email_id"`
+	Token     string `json:"token"`
+	Name      string `json:"name"`
+	Password  string `json:"password"`
+}

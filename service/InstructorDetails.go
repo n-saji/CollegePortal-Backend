@@ -359,6 +359,7 @@ func (s *Service) ViewinstructorProfile(i_id string) (*models.InstructorProfile,
 	return Profile, nil
 }
 
+// send account_id and (send email to update email or send password to update password )
 func (s *Service) UpdateInstructorCredentials(cred *models.InstructorLogin) error {
 
 	var crypted_password []byte

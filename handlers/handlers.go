@@ -51,6 +51,8 @@ func (h *Handler) RoutingChannel(rc *gin.RouterGroup) {
 	rc.GET("/health", h.healthCheckHandler)
 	rc.GET("/send-otp-email", h.SendOTPEmail)
 	rc.GET("/verify-otp", h.VerifyOTP)
+	rc.POST("/send-reset-password-mail", h.SendResetPasswordMail)
+	rc.POST("/reset-password", h.ResetPassword)
 
 	//WebSockets
 	rc.GET("/ws/:id", utils.HandleConnections)

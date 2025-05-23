@@ -109,3 +109,33 @@ func (h *Handler) VerifyOTP(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, "OTP verified successfully")
 }
+
+func (h *Handler) SendResetPasswordMail(ctx *gin.Context) {
+	var req models.ResetPasswordReq
+	if err := ctx.BindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	err := h.service.SendResetPasswordMail(req.EmailId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, "Reset password mail sent successfully")
+}
+
+func (h *Handler) ResetPassword(ctx *gin.Context) {
+
+	var req models.ResetPasswordReq
+	if err := ctx.BindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err := h.service.ResetPassword(req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, "Password reset successfully")
+}

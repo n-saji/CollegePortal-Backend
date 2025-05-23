@@ -103,3 +103,110 @@ func (s *Service) VerifyAccountStatusById(acc_id string) (bool, error) {
 
 	return accnt.Verified, nil
 }
+
+func (s *Service) SendResetPasswordMail(emailId string) error {
+	// Check if the email exists in the database
+	exists, err := s.CheckEmailExist(emailId)
+	if err != nil {
+		log.Println("failed to check email existence")
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("email does not exist")
+	}
+
+	// Generate a reset password token
+
+	account_id, err := s.daos.GetIDUsingEmail(emailId)
+	if err != nil {
+		log.Println("failed to get account by email")
+		return err
+	}
+	account_id_uuid, err := uuid.Parse(account_id)
+	if err != nil {
+		log.Println("failed to parse account id")
+		return err
+	}
+	token, err := s.CreateResetPasswordToken(account_id)
+	if err != nil {
+		log.Println("failed to create reset password token")
+		return err
+	}
+	account_name, err := s.daos.GetAccountNameById(account_id_uuid)
+	if err != nil {
+		log.Println("failed to get account name by id")
+		return err
+	}
+
+	// Send the reset password email
+	err = utils.SendResetPasswordEmail(emailId, token.String(), account_id, account_name.Name)
+	if err != nil {
+		log.Println("failed to send reset password email")
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) ResetPassword(req models.ResetPasswordReq) error {
+	// Check if the email exists in the database
+	err := s.ValidatePasswordReq(&req)
+	if err != nil {
+		return fmt.Errorf("failed to validate reset password request")
+	}
+
+	exists, err := s.CheckEmailExist(req.EmailId)
+	if err != nil {
+		return fmt.Errorf("failed to check email existence")
+	}
+	if !exists {
+		return fmt.Errorf("email does not exist")
+	}
+
+	// Validate the token
+	account_id, err := s.daos.GetIDUsingEmail(req.EmailId)
+	if err != nil {
+		return fmt.Errorf("failed to get account by email")
+	}
+	
+	account_id_uuid, err := uuid.Parse(account_id)
+	if err != nil {
+		return fmt.Errorf("failed to parse account id")
+	}
+
+	if account_id != req.AccountID {
+		return fmt.Errorf("account id mismatch")
+	}
+
+	token_uuid, err := uuid.Parse(req.Token)
+	if err != nil {
+		return fmt.Errorf("failed to parse token")
+	}
+
+	valid, err := s.CheckTokenValidity(token_uuid)
+	if err != nil {
+		return fmt.Errorf("token expired or invalid")
+	}
+	if !valid {
+		return fmt.Errorf("token is invalid or expired")
+	}
+
+	credentials := &models.InstructorLogin{
+		Id:       account_id_uuid,
+		Password: req.Password,
+	}
+
+	err = s.UpdateInstructorCredentials(credentials)
+	if err != nil {
+		log.Println("failed to update account password")
+		return err
+	}
+
+	err = s.DisableAllTokensForAccount(account_id)
+	if err != nil {
+		log.Println("failed to delete all token")
+		return err
+	}
+
+	return nil
+}
